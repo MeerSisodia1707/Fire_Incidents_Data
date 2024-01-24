@@ -1,0 +1,70 @@
+---
+title: "Trends in Fire Accidents in Toronto"
+title-block-banner: true
+abstract: "I have examined the data on reported fire incidents from 2011 to 2022 in the city of Toronto that the Ontario Fire Marshal made available in this analysis. After analysing the trend of incidents from 2011 to 2022, I discovered an unanticipated increase in incidents between 2017 and 2018. Additionally, we have examined the pattern of incidents over the course of several months from 2011 to 2022."
+thanks: "Code and data are available at: https://github.com/MeerSisodia1707/Fire_Incidents_Data.git"
+author: "Meer Sisodia"
+date: today
+date-format: long
+format: pdf
+editor: visual
+toc: true
+number-sections: true
+bibliography: ref.bib
+---
+
+```{r}
+#| message: false
+#| echo: false
+
+### Loading Packages ###
+library(here)
+library(tidyverse)
+library(lubridate)
+
+### Reading the Cleaned Datasets ###
+
+cleaned_year_data = read.csv(
+  file = "Outputs/data/year_data.csv"
+)
+
+cleaned_year_data <- cleaned_year_data |> mutate(year = factor(year))
+
+
+cleaned_month_data = read.csv(
+  file = "Outputs/data/month_data.csv"
+)
+
+cleaned_month_data <- cleaned_month_data |> mutate(month = factor(month))
+
+```
+
+## Introduction
+
+Fire incidents have long contributed significantly to resource loss and deaths in many countries. In 2021, Canada alone reported 39000 fire incidents [@IntroArt]. In order to comprehend the pattern of fire incidents in Toronto, I used the fire incidents data in this paper which I obtained from Toronto Open Data [@FireData].
+
+## Data
+As stated above the Data we use here has been acquired from the Toronto Open Data. I have used the programming language R to analyse the data [@citeR] along with the package: tidyverse [@tidy]. The data had many features which ranged from the location of the incidents to the ignition cause of the incident. The one that played the pivotal role in this project was the column TFS_Arrival_Time. I used that column to determine the years and months of the incidents.
+
+## Discussion
+
+From our analysis I found that there was an unexpected jump in the number of incidents after 2018. One possible reason could be that before 2017 collection of this data wasn't efficient enough.
+
+```{r}
+#| message: false
+#| echo: false
+ggplot(cleaned_year_data, aes(x = year, y = incidents)) + geom_bar(stat = 'identity')
+```
+
+I have also found a trend in the distribution of the incidents over the various. May, June, July have the highest number of incidents. 
+
+```{r}
+#| message: false
+#| echo: false
+ggplot(cleaned_month_data, aes(x = month, y = incidents)) + geom_bar(stat = 'identity')
+```
+
+
+
+
+## Reference
