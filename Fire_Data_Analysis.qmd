@@ -1,7 +1,7 @@
 ---
 title: "Trends in Fire Accidents in Toronto"
 title-block-banner: true
-abstract: "I have examined the data on reported fire incidents from 2011 to 2022 in the city of Toronto that the Ontario Fire Marshal made available in this analysis. After analysing the trend of incidents from 2011 to 2022, I discovered an unanticipated increase in incidents between 2017 and 2018. Additionally, we have examined the pattern of incidents over the course of several months from 2011 to 2022."
+abstract: "I have examined the data on reported fire incidents from 2011 to 2022 in the city of Toronto that the Ontario Fire Marshal made available in this analysis. After analysing the trend of incidents from 2011 to 2022, I discovered an unanticipated increase in incidents between 2017 and 2018. Additionally, we have examined the pattern of incidents over the course of several months from 2011 to 2022.We have also tried to understand the distribution of number of deaths and ignition sources of fire incidents."
 thanks: "Code and data are available at: https://github.com/MeerSisodia1707/Fire_Incidents_Data.git"
 author: "Meer Sisodia"
 date: today
@@ -40,6 +40,10 @@ sample_data = read.csv(file = "Outputs/data/sample_data.csv")
 
 cleaned_sample_data = read.csv(file = "Outputs/data/clean_sample_data.csv")
 
+year_death_data = read.csv(file = "Outputs/data/year_death_data.csv")
+
+source_count_data = read.csv(file = "Outputs/data/source_count.csv")
+
 ```
 
 ## Introduction
@@ -50,6 +54,8 @@ In many nations, fire events have long been a major factor in resource loss and 
 As previously mentioned, Toronto Open Data was the source from which I obtained the data used here. I have analysed the data [@citeR] using the tidyverse package in the programming language R [@citeR] [@tidy]. Numerous columns were present in the data, spanning from the incidents' locations to their causes of ignition. A sample of the data used is shown below; I have just displayed the columns that I used for this project. (The data itself contains 29425 rows and 43 columns). Here each row represents a reported incident.
 
 ```{r}
+#| label: Raw Data Sample
+#| tbl-cap: "A small filtered snippet of the actual data"
 #| message: false
 #| echo: false
 
@@ -59,14 +65,20 @@ kable(sample_data)
 After cleaning and preparing, the data looked like this.
 
 ```{r}
+#| label: Cleaned Data Sample
+#| tbl-cap: "A sample of the cleaned data"
 #| message: false
 #| echo: false
 
-kable(clean_sample_data)
+kable(cleaned_sample_data)
 ```
 
 
-The column TFS_Arrival_Time, which represents the time at which the fire fighters reached the place of incident, was the one that was crucial to this project. I calculated the years and months of the incidents and made a separate column for them in the data using that column and the library lubricate. The column civilian casualties represents, as the name suggests, the number of fatalities of an incident.
+The column TFS_Arrival_Time, which represents the time at which the fire fighters reached the place of incident, was the one that was crucial to this project. I calculated the years and months of the incidents and made a separate column for them in the data using that column and the library lubricate. 
+
+The column civilian casualties represents, as the name suggests, the number of fatalities of an incident.
+
+The column Ignition_Source represents the reason for fire. As you can see, this column has a lot of NA or Undermined cases. I didn't delete those rows during my analysis so as to not lose any kind of valuable data. 
 
 
 ## Discussion
@@ -76,18 +88,51 @@ My analysis revealed that the number of incidents unexpectedly increased after 2
 ```{r}
 #| message: false
 #| echo: false
+#| fig.height: 4
+#| fig.width: 6
+#| label: "Figure 2.1"
+#| fig-cap: "Distribution of the number of incidents over the years"
 ggplot(cleaned_year_data, aes(x = year, y = incidents)) + geom_bar(stat = 'identity') + theme_classic()
 ```
 
-Additionally, I discovered a pattern in the way the incidents were distributed across the different months from 2011 to 2018. June, July, and May have the most incidents. In general, the number of incidents increases beginning in April and peaks in May. They begin to decline in August and keep going down until December. All things considered, this indicates that summertime is when there are more fire incidents.
+Additionally, I discovered a pattern in the way the incidents were distributed across the different months from 2011 to 2018. June, July, and May have the most incidents. In general, the number of incidents increases beginning in April and peaks in May. They begin to decline in August and keep going down until December. All things considered, this indicates that summer is when there are more fire incidents.
 
 ```{r}
 #| message: false
 #| echo: false
+#| fig.width: 8
+#| fig.height: 4
+#| label: "Figure 2.2"
+#| fig-cap: "Distribution of the number of incidents over the months"
 cleaned_month_data$month <- factor(cleaned_month_data$month, levels = unique(cleaned_month_data$month))
 ggplot(cleaned_month_data, aes(x = month, y = incidents), levels = unique(cleaned_month_data$month)) + geom_bar(stat = 'identity') + theme_classic()
 ```
 
+
+I have also analysed the fatalities data. This data suggests that the number of deaths in the past few years due to fire related incidents have dropped down by a signifant amount. One noticible thing here is that even though our previous discovery tells us that the number of cases have increased since 2018, we can see here that number of deaths, on the other hand, have been on a decline since 2019.
+
+```{r}
+#| message: false
+#| fig.width: 8
+#| fig.height: 4
+#| echo: false
+#| label: "Figure 2.3"
+#| fig-cap: "Distribution of death due to fire incidents over the years"
+year_death_data <- year_death_data |> mutate(years = factor(years))
+ggplot(year_death_data, aes(x = years, y = deaths)) + geom_bar(stat = 'identity') + theme_classic()
+```
+
+Finally, I have attempted to identify the most frequent reason for fire occurrences. As mentioned in the data part, I discovered during the process that the Ignition_Sources column has a large number of NA and Undetermined Values. Undetermined data has no bearing on the issue since it is a reaction to a scenario in which the fire service, despite extensive investigation, was unable to identify the fire's source. Conversely, NA numbers indicate that the investigation's outcome was not noted. 
+The graph displaying the top 10 Ignition_Source Values is below.
+After NA and undetermined values we can see that stove/burner, Smoking and Vehicle related fire incidents are the most common.
+
+```{r}
+#| message: false
+#| echo: false
+#| tbl-cap: "Distribution of death due to fire incidents over the years"
+
+kable(head(source_count_data))
+```
 
 
 
