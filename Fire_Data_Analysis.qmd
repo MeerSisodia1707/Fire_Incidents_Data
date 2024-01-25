@@ -16,11 +16,12 @@ bibliography: ref.bib
 ```{r}
 #| message: false
 #| echo: false
-
 ### Loading Packages ###
 library(here)
 library(tidyverse)
 library(lubridate)
+library(tinytex)
+library(knitr)
 
 ### Reading the Cleaned Datasets ###
 
@@ -35,33 +36,56 @@ cleaned_month_data = read.csv(
   file = "Outputs/data/month_data.csv"
 )
 
-cleaned_month_data <- cleaned_month_data |> mutate(month = factor(month))
+sample_data = read.csv(file = "Outputs/data/sample_data.csv")
+
+cleaned_sample_data = read.csv(file = "Outputs/data/clean_sample_data.csv")
 
 ```
 
 ## Introduction
 
-Fire incidents have long contributed significantly to resource loss and deaths in many countries. In 2021, Canada alone reported 39000 fire incidents [@IntroArt]. In order to comprehend the pattern of fire incidents in Toronto, I used the fire incidents data in this paper which I obtained from Toronto Open Data [@FireData].
+In many nations, fire events have long been a major factor in resource loss and fatalities. Canada [@IntroArt] recorded 39000 fire incidents in 2021. I used the fire incident data from Toronto Open Data [@FireData] in this study to understand the trend of fire incidents in Toronto. I looked into the Toronto fire occurrences that occurred between 2011 and 2022 in this paper. I have examined the trends in the occurrences over the course of several years and months. I have additionally documented the quantity of fatalities resulting from fire incidents across the various years. Additionally, I have looked at the most frequent reason for the fires. 
 
 ## Data
-As stated above the Data we use here has been acquired from the Toronto Open Data. I have used the programming language R to analyse the data [@citeR] along with the package: tidyverse [@tidy]. The data had many features which ranged from the location of the incidents to the ignition cause of the incident. The one that played the pivotal role in this project was the column TFS_Arrival_Time. I used that column to determine the years and months of the incidents.
+As previously mentioned, Toronto Open Data was the source from which I obtained the data used here. I have analysed the data [@citeR] using the tidyverse package in the programming language R [@citeR] [@tidy]. Numerous columns were present in the data, spanning from the incidents' locations to their causes of ignition. A sample of the data used is shown below; I have just displayed the columns that I used for this project. (The data itself contains 29425 rows and 43 columns). Here each row represents a reported incident.
+
+```{r}
+#| message: false
+#| echo: false
+
+kable(sample_data)
+```
+
+After cleaning and preparing, the data looked like this.
+
+```{r}
+#| message: false
+#| echo: false
+
+kable(clean_sample_data)
+```
+
+
+The column TFS_Arrival_Time, which represents the time at which the fire fighters reached the place of incident, was the one that was crucial to this project. I calculated the years and months of the incidents and made a separate column for them in the data using that column and the library lubricate. The column civilian casualties represents, as the name suggests, the number of fatalities of an incident.
+
 
 ## Discussion
 
-From our analysis I found that there was an unexpected jump in the number of incidents after 2018. One possible reason could be that before 2017 collection of this data wasn't efficient enough.
+My analysis revealed that the number of incidents unexpectedly increased after 2018 (One explanation might be that this data wasn't efficiently collected prior to 2017).
 
 ```{r}
 #| message: false
 #| echo: false
-ggplot(cleaned_year_data, aes(x = year, y = incidents)) + geom_bar(stat = 'identity')
+ggplot(cleaned_year_data, aes(x = year, y = incidents)) + geom_bar(stat = 'identity') + theme_classic()
 ```
 
-I have also found a trend in the distribution of the incidents over the various. May, June, July have the highest number of incidents. 
+Additionally, I discovered a pattern in the way the incidents were distributed across the different months from 2011 to 2018. June, July, and May have the most incidents. In general, the number of incidents increases beginning in April and peaks in May. They begin to decline in August and keep going down until December. All things considered, this indicates that summertime is when there are more fire incidents.
 
 ```{r}
 #| message: false
 #| echo: false
-ggplot(cleaned_month_data, aes(x = month, y = incidents)) + geom_bar(stat = 'identity')
+cleaned_month_data$month <- factor(cleaned_month_data$month, levels = unique(cleaned_month_data$month))
+ggplot(cleaned_month_data, aes(x = month, y = incidents), levels = unique(cleaned_month_data$month)) + geom_bar(stat = 'identity') + theme_classic()
 ```
 
 
